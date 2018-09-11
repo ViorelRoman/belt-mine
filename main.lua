@@ -12,7 +12,15 @@ function love.load()
   player = Craft.new(200, 200, 10, world)
   asteroids = {}
   for i = 1, 1000 do
-    asteroid = Asteroid.new(math.random(-10000, 10000), math.random(-10000, 10000), 20, math.random(), world)
+    type_chances = math.random()
+    if type_chances < 0.5 then
+      asteroid_type = 'S'
+    elseif type_chances < 0.85 then
+      asteroid_type = 'C'
+    else
+      asteroid_type = 'M'
+    end
+    asteroid = Asteroid.new(math.random(-10000, 10000), math.random(-10000, 10000), 20, math.random(), asteroid_type, world)
     table.insert(asteroids, asteroid)
   end
   station = Station.new(640, 360, world)

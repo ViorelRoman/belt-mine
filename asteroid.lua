@@ -2,18 +2,25 @@ local Asteroid = {}
 
 math.randomseed(os.time())
 
+AsteroidTypes = {
+  M = love.graphics.newImage("asteroid_m.png"),
+  C = love.graphics.newImage("asteroid_c.png"),
+  S = love.graphics.newImage("asteroid_s.png")
+}
+
 Asteroid.__index = Asteroid
 
-function Asteroid.new(x, y, mass, rotation, world)
+function Asteroid.new(x, y, mass, rotation, asteroid_type, world)
   local self = setmetatable({}, Asteroid)
   self.x = x
   self.y = y
   self.mass = mass
   self.world = world
+  self.asteroid_type = asteroid_type
   self.body = love.physics.newBody(self.world, self.x, self.y, "dynamic")
-  self.shape = love.physics.newRectangleShape(0, 0, 70, 96)
+  self.shape = love.physics.newCircleShape(48)
   self.fixture = love.physics.newFixture(self.body, self.shape, self.mass)
-  self.image = love.graphics.newImage("asteroid.png")
+  self.image = AsteroidTypes[self.asteroid_type]
   self.body:setAngle(rotation)
   self.body:setLinearVelocity(math.random(-10, 10), math.random(-10, 10))
   self.body:setAngularVelocity(math.random())
