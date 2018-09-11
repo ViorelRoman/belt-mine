@@ -1,6 +1,7 @@
 local Craft = require "spacecraft"
 local Asteroid = require "asteroid"
 local Station = require "station"
+local Can = require "goods"
 
 str = ""
 
@@ -23,6 +24,7 @@ function love.load()
     asteroid = Asteroid.new(math.random(-10000, 10000), math.random(-10000, 10000), 20, math.random(), asteroid_type, world)
     table.insert(asteroids, asteroid)
   end
+  can = Can.new(math.random(0, 1280), math.random(0, 720), math.random(), math.random(), world)
   station = Station.new(640, 360, world)
   background = love.graphics.newImage("background.jpg")
   love.window.setMode(1280, 720)
@@ -38,6 +40,7 @@ function love.draw()
   love.graphics.draw(background, 0, 0)
   player.draw(player)
   station.draw(station)
+  can.draw(can)
   for i, asteroid in pairs(asteroids) do
     asteroid.draw(asteroid)
   end
