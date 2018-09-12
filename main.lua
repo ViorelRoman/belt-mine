@@ -10,6 +10,7 @@ math.randomseed(os.time())
 function love.load()
   love.physics.setMeter(64)
   world = love.physics.newWorld(0, 0, true)
+  world:setCallbacks(beginContact, endContact, preSolve, postSolve)
   player = Craft.new(200, 200, 10, world)
   asteroids = {}
   for i = 1, 1000 do
@@ -40,16 +41,38 @@ function love.draw()
   love.graphics.draw(background, 0, 0)
   player.draw(player)
   station.draw(station)
-  can.draw(can)
+  if can ~= nil then
+    if can.consumed then
+      can.body:destroy()
+      can = nil
+    else
+      can.draw(can)
+    end
+  end
   for i, asteroid in pairs(asteroids) do
     asteroid.draw(asteroid)
   end
   fuel_str = string.format("%d", player.fuel)
   love.graphics.print({{0, 1, 0}, "Fuel: ", {1, 0, 0}, fuel_str}, 0, 0)
   sx, sy = player.body:getLinearVelocity()
-  speed_str = string.format("%d m/s", math.sqrt(math.pow(sx, 2) + math.pow(sy, 2)))
+  speed_str = string.format("X: %d m/s, Y: %d m/s, Total: %d m/s", sx, sy, math.sqrt(math.pow(sx, 2) + math.pow(sy, 2)))
   love.graphics.print({{0, 1, 0}, "Speed: ", {1, 0, 0}, speed_str}, 0, 20)
   coordinate_str = string.format("%d %d", player.body:getX() - station.body:getX(), player.body:getY() - station.body:getY())
   love.graphics.print({{0, 1, 0}, "Coordinates: ", {1, 0, 0}, coordinate_str}, 0, 40)
 end
 
+function beginContact(a, b, coll)
+  obj_a = a:getUserData()
+  obj_b = b:getUserData()
+  obj_a:coll(obj_b)
+  obj_b:coll(obj_a)
+end
+
+function endContact(a, b, coll)
+end
+
+function preSolve(a, b, coll)
+end
+
+function postSolve(a, b, coll, n, t)
+end

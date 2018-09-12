@@ -4,12 +4,14 @@ Station.__index = Station
 
 function Station.new(x, y, world)
   self = setmetatable({}, Station)
+  self.name = 'Station'
   self.x = x
   self.y = y
   self.world = world
   self.body = love.physics.newBody(self.world, x, y, "dynamic")
   self.shape = love.physics.newCircleShape(152)
   self.fixture = love.physics.newFixture(self.body, self.shape, 100000)
+  self.fixture:setUserData(self)
   self.body:setAngularVelocity(0.05)
   self.image = love.graphics.newImage("images/station.png")
   self.water = 100
@@ -44,6 +46,27 @@ function Station.draw()
   )
   str = string.format("H20: %d, Fe: %d, Si: %d, P: %d, Fuel: %d, Seeds: %d", self.water, self.iron, self.silicate, self.phosphate, self.fuel, self.seeds)
   love.graphics.print({{0, 1, 0}, str}, 0, 680)
+end
+
+function Station.coll(self, o)
+  if o.name == 'Craft' then
+    self.phosphate = self.phosphate + o.phosphate
+    self.water = self.water + o.water
+    self.iron = self.iron + o.iron
+    self.carbon = self.carbon + o.carbon
+    self.silicate = self.silicate + o.silicate
+    need_fuel = math.min(100 - o.fuel, self.fuel)
+    self.fuel = self.fuel - need_fuel
+    o.fuel = o.fuel + need_fuel
+    need_seeds = math.min(10 - o.seeds, self.seeds)
+    o.seeds = o.seeds + need_seeds
+    self.seeds = self.seeds - need_seeds
+    o.water = 0
+    o.iron = 0
+    o.phosphate = 0
+    o.silicate = 0
+    o.carbon = 0
+  end
 end
 
 return Station
