@@ -3,9 +3,9 @@ local Asteroid = {}
 math.randomseed(os.time())
 
 AsteroidTypes = {
-  M = love.graphics.newImage("asteroid_m.png"),
-  C = love.graphics.newImage("asteroid_c.png"),
-  S = love.graphics.newImage("asteroid_s.png")
+  M = love.graphics.newImage("images/asteroid_m.png"),
+  C = love.graphics.newImage("images/asteroid_c.png"),
+  S = love.graphics.newImage("images/asteroid_s.png")
 }
 
 Asteroid.__index = Asteroid

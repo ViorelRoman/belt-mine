@@ -1,7 +1,7 @@
-local Craft = require "spacecraft"
-local Asteroid = require "asteroid"
-local Station = require "station"
-local Can = require "goods"
+local Craft = require "models.spacecraft"
+local Asteroid = require "models.asteroid"
+local Station = require "models.station"
+local Can = require "models.goods"
 
 str = ""
 
@@ -26,7 +26,7 @@ function love.load()
   end
   can = Can.new(math.random(0, 1280), math.random(0, 720), math.random(), math.random(), world)
   station = Station.new(640, 360, world)
-  background = love.graphics.newImage("background.jpg")
+  background = love.graphics.newImage("images/background.jpg")
   love.window.setMode(1280, 720)
 end
 

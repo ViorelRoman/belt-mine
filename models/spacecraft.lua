@@ -16,7 +16,7 @@ function Craft.new(x, y, mass, world)
   self.body = love.physics.newBody(self.world, self.x, self.y, "dynamic")
   self.shape = love.physics.newRectangleShape(0, 0, 50, 27)
   self.fixture = love.physics.newFixture(self.body, self.shape, self.mass)
-  self.image = love.graphics.newImage("rocket-stop.png")
+  self.image = love.graphics.newImage("images/rocket-stop.png")
   return self
 end
 
@@ -37,10 +37,10 @@ function Craft.update(self, dt)
     if self.fuel > 0 then
       self.fuel = self.fuel - 0.01
       self.body:applyForce(100 * math.cos(self.rotation), 100 * math.sin(self.rotation))
-      self.image = love.graphics.newImage("rocket.png")
+      self.image = love.graphics.newImage("images/rocket.png")
     end
   elseif love.keyboard.isDown("up") ~= true then
-    self.image = love.graphics.newImage("rocket-stop.png")
+    self.image = love.graphics.newImage("images/rocket-stop.png")
   end
 end
 

@@ -11,7 +11,7 @@ function Station.new(x, y, world)
   self.shape = love.physics.newCircleShape(152)
   self.fixture = love.physics.newFixture(self.body, self.shape, 100000)
   self.body:setAngularVelocity(0.05)
-  self.image = love.graphics.newImage("station.png")
+  self.image = love.graphics.newImage("images/station.png")
   self.water = 100
   self.food = 100
   self.iron = 100

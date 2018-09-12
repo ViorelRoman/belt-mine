@@ -17,7 +17,7 @@ function Can.new(x, y, xv, yv, world)
   self.fixture = love.physics.newFixture(self.body, self.shape, self.mass)
   self.body:setAngularVelocity(0.05)
   self.body:setLinearVelocity(xv, yv)
-  self.image = love.graphics.newImage("water_can.png")
+  self.image = love.graphics.newImage("images/water_can.png")
   return self
 end
 
