@@ -25,7 +25,11 @@ function love.load()
     asteroid = Asteroid.new(math.random(-10000, 10000), math.random(-10000, 10000), 20, math.random(), asteroid_type, world)
     table.insert(asteroids, asteroid)
   end
-  can = Can.new(math.random(0, 1280), math.random(0, 720), math.random(), math.random(), world)
+  cans = {}
+  for i = 1, 20 do
+    can = Can.new(math.random(-1280, 1280), math.random(-720, 720), math.random(), math.random(), world)
+    table.insert(cans, can)
+  end
   station = Station.new(640, 360, world)
   background = love.graphics.newImage("images/background.jpg")
   love.window.setMode(1280, 720)
@@ -35,19 +39,24 @@ function love.update(dt)
   world.update(world, dt)
   player.update(player, dt)
   station.update(station, dt)
+  tbl = {}
+  for i, can in pairs(cans) do
+    if can.consumed then
+      can.body:destroy()
+      can = nil
+    else
+      table.insert(tbl, can)
+    end
+  end
+  cans = tbl
 end
 
 function love.draw()
   love.graphics.draw(background, 0, 0)
   player.draw(player)
   station.draw(station)
-  if can ~= nil then
-    if can.consumed then
-      can.body:destroy()
-      can = nil
-    else
-      can.draw(can)
-    end
+  for i, can in pairs(cans) do
+    can.draw(can)
   end
   for i, asteroid in pairs(asteroids) do
     asteroid.draw(asteroid)
@@ -62,10 +71,6 @@ function love.draw()
 end
 
 function beginContact(a, b, coll)
-  obj_a = a:getUserData()
-  obj_b = b:getUserData()
-  obj_a:coll(obj_b)
-  obj_b:coll(obj_a)
 end
 
 function endContact(a, b, coll)
@@ -75,4 +80,8 @@ function preSolve(a, b, coll)
 end
 
 function postSolve(a, b, coll, n, t)
+  obj_a = a:getUserData()
+  obj_b = b:getUserData()
+  obj_a:coll(obj_b)
+  obj_b:coll(obj_a)
 end

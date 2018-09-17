@@ -13,11 +13,14 @@ Asteroid.__index = Asteroid
 function Asteroid.new(x, y, mass, rotation, asteroid_type, world)
   local self = setmetatable({}, Asteroid)
   self.name = 'Asteroid'
+
   self.x = x
   self.y = y
   self.mass = mass
   self.world = world
   self.asteroid_type = asteroid_type
+  self.seeded = false
+
   self.body = love.physics.newBody(self.world, self.x, self.y, "dynamic")
   self.shape = love.physics.newCircleShape(48)
   self.fixture = love.physics.newFixture(self.body, self.shape, self.mass)
@@ -40,7 +43,7 @@ function Asteroid.draw(self)
   )
 end
 
-function Asteroid.coll(obj)
+function Asteroid.coll(self, obj)
 end
 
 return Asteroid
