@@ -10,13 +10,15 @@ function Craft.new(x, y, mass, world)
   self._x = x
   self._y = y
   self.ammo = 100
-  self.fuel = 100
+  self.fuel = 10
   self.seeds = 10
-  self.water = 0
-  self.iron = 0
-  self.phosphate = 0
-  self.silicate = 0
-  self.carbon = 0
+  self.resources = {
+	  iron=0,
+	  silicate=0,
+	  water=0,
+	  phosphate=0,
+	  carbon=0
+  }
   self.mass = mass
   self.world = world
   self.rotation = 0
@@ -26,6 +28,14 @@ function Craft.new(x, y, mass, world)
   self.fixture:setUserData(self)
   self.image = love.graphics.newImage("images/rocket-stop.png")
   return self
+end
+
+function Craft.setMass(self)
+  mass = 50 + self.fuel
+  for k, v in pairs(self.resources) do
+    mass = mass + v
+  end
+  self.body:setMass(mass)
 end
 
 function Craft.update(self, dt)
@@ -44,12 +54,13 @@ function Craft.update(self, dt)
   elseif love.keyboard.isDown("up") then
     if self.fuel > 0 then
       self.fuel = self.fuel - 0.01
-      self.body:applyForce(100 * math.cos(self.rotation), 100 * math.sin(self.rotation))
+      self.body:applyForce(500 * math.cos(self.rotation), 500 * math.sin(self.rotation))
       self.image = love.graphics.newImage("images/rocket.png")
     end
   elseif love.keyboard.isDown("up") ~= true then
     self.image = love.graphics.newImage("images/rocket-stop.png")
   end
+  self.setMass(self)
 end
 
 function Craft.draw(self)
@@ -62,24 +73,27 @@ function Craft.draw(self)
     self.image:getWidth() / 2,
     self.image:getHeight() / 2
   )
-  str = string.format("H20: %d, Fe: %d, Si: %d, P: %d, Fuel: %d, Seeds: %d", self.water, self.iron, self.silicate, self.phosphate, self.fuel, self.seeds)
+  str = string.format(
+    "H20: %d, Fe: %d, Si: %d, P: %d, Fuel: %d, Seeds: %d, Angle: %f",
+    self.resources["water"],
+    self.resources["iron"],
+    self.resources["silicate"],
+    self.resources["phosphate"],
+    self.fuel,
+    self.seeds,
+    self.body:getAngle()
+  )
   love.graphics.print({{0, 1, 0}, str}, 0, 60)
 end
 
 function Craft.coll(self, obj)
   local o = obj
   if o.name == 'Can' then
-    self.phosphate = self.phosphate + o.phosphate
-    self.water = self.water + o.water
-    self.iron = self.iron + o.iron
-    self.carbon = self.carbon + o.carbon
-    self.silicate = self.silicate + o.silicate
+    for k, v in pairs(self.resources) do
+      self.resources[k] = self.resources[k] + o.resources[k]
+      o.resources[k] = 0
+    end
     o.consumed = true
-    o.water = 0
-    o.iron = 0
-    o.phosphate = 0
-    o.silicate = 0
-    o.carbon = 0
   end
 end
 

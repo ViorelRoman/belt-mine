@@ -2,15 +2,13 @@ local Can = {}
 
 Can.__index = Can
 
-function Can.new(x, y, xv, yv, world)
+function Can.new(x, y, xv, yv, resources, world)
   local self = setmetatable({}, Can)
   self.name = 'Can'
   self.x = x
   self.y = y
   self.xv = xv
   self.yv = yv
-  self.ammo = 100
-  self.fuel = 100
   self.mass = 5
   self.world = world
   self.body = love.physics.newBody(self.world, self.x, self.y, "dynamic")
@@ -20,11 +18,7 @@ function Can.new(x, y, xv, yv, world)
   self.body:setAngularVelocity(0.05)
   self.body:setLinearVelocity(xv, yv)
   self.image = love.graphics.newImage("images/water_can.png")
-  self.water = 10
-  self.iron = 2
-  self.phosphate = 1
-  self.silicate = 8
-  self.carbon = 1
+  self.resources = resources
   self.consumed = false
   return self
 end

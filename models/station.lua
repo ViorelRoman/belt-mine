@@ -50,22 +50,16 @@ end
 
 function Station.coll(self, o)
   if o.name == 'Craft' then
-    self.phosphate = self.phosphate + o.phosphate
-    self.water = self.water + o.water
-    self.iron = self.iron + o.iron
-    self.carbon = self.carbon + o.carbon
-    self.silicate = self.silicate + o.silicate
-    need_fuel = math.min(100 - o.fuel, self.fuel)
+    for k, v in pairs(o.resources) do
+	self[k] = self[k] + v
+	o.resources[k] = 0
+    end
+    need_fuel = math.min(10 - o.fuel, self.fuel)
     self.fuel = self.fuel - need_fuel
     o.fuel = o.fuel + need_fuel
     need_seeds = math.min(10 - o.seeds, self.seeds)
     o.seeds = o.seeds + need_seeds
     self.seeds = self.seeds - need_seeds
-    o.water = 0
-    o.iron = 0
-    o.phosphate = 0
-    o.silicate = 0
-    o.carbon = 0
   end
 end
 
