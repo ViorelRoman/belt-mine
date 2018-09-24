@@ -25,6 +25,11 @@ function Station.new(x, y, world)
   return self
 end
 
+function Station.setMass(self)
+  mass = 150000 + self.water + self.food + self.iron + self.silicate + self.carbon + self.phosphate + self.seeds + self.fuel
+  self.body:setMass(mass)
+end
+
 function Station.update(dt)
   self.water = self.water - 0.001
   self.carbon = self.carbon - 0.0005
@@ -33,6 +38,7 @@ function Station.update(dt)
   self.phosphate = self.phosphate - 0.0001
   self.fuel = self.fuel + 0.0009
   self.seeds = self.seeds + 0.00009
+  self.setMass(self)
 end
 
 function Station.draw()
@@ -54,12 +60,19 @@ function Station.coll(self, o)
 	self[k] = self[k] + v
 	o.resources[k] = 0
     end
-    need_fuel = math.min(10 - o.fuel, self.fuel)
+    need_fuel = math.min(30 - o.fuel, self.fuel)
     self.fuel = self.fuel - need_fuel
     o.fuel = o.fuel + need_fuel
     need_seeds = math.min(10 - o.seeds, self.seeds)
     o.seeds = o.seeds + need_seeds
     self.seeds = self.seeds - need_seeds
+  end
+  if o.name == 'Can' then
+    for k, v in pairs(o.resources) do
+      self[k] = self[k] + o.resources[k]
+      o.resources[k] = 0
+    end
+    o.consumed = true
   end
 end
 

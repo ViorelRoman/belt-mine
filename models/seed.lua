@@ -9,13 +9,14 @@ function Seed.new(x, y, angle, xv, yv, world)
   self.y = y
   self.world = world
   self.consumed = false
+  self.mass = 10
 
   
   self.body = love.physics.newBody(self.world, self.x, self.y, "dynamic")
   self.shape = love.physics.newRectangleShape(0, 0, 30, 29)
   self.fixture = love.physics.newFixture(self.body, self.shape, self.mass)
   self.fixture:setUserData(self)
-  self.body:setLinearVelocity(xv + (100 * math.cos(angle)), yv + (100 * math.sin(angle)))
+  self.body:setLinearVelocity(xv + (1000 * math.cos(angle)), yv + (1000 * math.sin(angle)))
   self.image = love.graphics.newImage("images/seed.png")
 
   return self

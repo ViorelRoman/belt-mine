@@ -10,7 +10,7 @@ function Craft.new(x, y, mass, world)
   self._x = x
   self._y = y
   self.ammo = 100
-  self.fuel = 10
+  self.fuel = 30
   self.seeds = 10
   self.resources = {
 	  iron=0,
@@ -54,7 +54,7 @@ function Craft.update(self, dt)
   elseif love.keyboard.isDown("up") then
     if self.fuel > 0 then
       self.fuel = self.fuel - 0.01
-      self.body:applyForce(500 * math.cos(self.rotation), 500 * math.sin(self.rotation))
+      self.body:applyForce(700 * math.cos(self.rotation), 700 * math.sin(self.rotation))
       self.image = love.graphics.newImage("images/rocket.png")
     end
   elseif love.keyboard.isDown("up") ~= true then

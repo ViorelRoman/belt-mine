@@ -63,9 +63,20 @@ function Asteroid.new(x, y, mass, rotation, asteroid_type, world)
   self.fixture:setUserData(self)
   self.image = AsteroidTypes[self.asteroid_type]["images"][1]
   self.body:setAngle(rotation)
-  self.body:setLinearVelocity(math.random(-10, 10), math.random(-10, 10))
+  self.body:setLinearVelocity(math.random(-20, 20), math.random(-20, 20))
   self.body:setAngularVelocity(math.random())
   return self
+end
+
+function Asteroid.setMass(self)
+  mass = 0
+  for k, v in pairs(self.resources) do
+    mass = mass + (2 * v)
+  end
+  for k, v in pairs(self.collected) do
+    mass = mass + v
+  end
+  self.body:setMass(mass)
 end
 
 function Asteroid.seedit(self)
@@ -83,6 +94,7 @@ function Asteroid.update(self, dt)
 	end
     end
   end
+  self.setMass(self)
 end
 
 function Asteroid.send_package(self)

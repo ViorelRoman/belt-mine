@@ -20,10 +20,24 @@ function Can.new(x, y, xv, yv, resources, world)
   self.image = love.graphics.newImage("images/water_can.png")
   self.resources = resources
   self.consumed = false
+  self.ttl = 60
   return self
 end
 
+function Can.setMass(self)
+  mass = 0
+  for k, v in pairs(self.resources) do
+    mass = mass + v
+  end
+  self.body:setMass(mass)
+end
+
 function Can.update(self, dt)
+  self.setMass(self)
+  self.ttl = self.ttl - dt
+  if self.ttl < 0 then
+    self.consumed = true
+  end
 end
 
 function Can.draw(self)

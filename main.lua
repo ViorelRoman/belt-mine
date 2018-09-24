@@ -3,6 +3,7 @@ local Asteroid = require "models.asteroid"
 local Station = require "models.station"
 local Can = require "models.goods"
 local Seed = require "models.seed"
+local Gravity = require "libs.gravity"
 
 str = ""
 
@@ -12,9 +13,10 @@ function love.load()
   love.physics.setMeter(64)
   world = love.physics.newWorld(0, 0, true)
   world:setCallbacks(beginContact, endContact, preSolve, postSolve)
+  gravity = Gravity.new(0.05, world)
   player = Craft.new(200, 200, 10, world)
   asteroids = {}
-  for i = 1, 1000 do
+  for i = 1, 100 do
     type_chances = math.random()
     if type_chances < 0.5 then
       asteroid_type = 'S'
@@ -23,7 +25,7 @@ function love.load()
     else
       asteroid_type = 'M'
     end
-    asteroid = Asteroid.new(math.random(-10000, 10000), math.random(-10000, 10000), 20, math.random(), asteroid_type, world)
+    asteroid = Asteroid.new(math.random(-4000, 4000), math.random(-4000, 4000), 20, math.random(), asteroid_type, world)
     table.insert(asteroids, asteroid)
   end
   cans = {}
@@ -37,6 +39,7 @@ function love.update(dt)
   world.update(world, dt)
   player.update(player, dt)
   station.update(station, dt)
+  gravity.update(gravity, dt)
   tbl = {}
   for i, asteroid in pairs(asteroids) do
     asteroid.update(asteroid, dt)
@@ -48,6 +51,7 @@ function love.update(dt)
     end
   end
   for i, can in pairs(cans) do
+    can.update(can, dt)
     if can.consumed then
       can.body:destroy()
       can = nil
@@ -93,7 +97,7 @@ function love.draw()
   fuel_str = string.format("%d", player.fuel)
   love.graphics.print({{0, 1, 0}, "Fuel: ", {1, 0, 0}, fuel_str}, 0, 0)
   sx, sy = player.body:getLinearVelocity()
-  speed_str = string.format("X: %d m/s, Y: %d m/s, Total: %d m/s", sx, sy, math.sqrt(math.pow(sx, 2) + math.pow(sy, 2)))
+  speed_str = string.format("X: %f m/s, Y: %f m/s, Total: %d m/s", sx, sy, math.sqrt(math.pow(sx, 2) + math.pow(sy, 2)))
   love.graphics.print({{0, 1, 0}, "Speed: ", {1, 0, 0}, speed_str}, 0, 20)
   coordinate_str = string.format("%d %d", player.body:getX() - station.body:getX(), player.body:getY() - station.body:getY())
   love.graphics.print({{0, 1, 0}, "Coordinates: ", {1, 0, 0}, coordinate_str}, 0, 40)
