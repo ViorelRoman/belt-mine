@@ -40,6 +40,9 @@ function Can.update(self, dt)
   end
 end
 
+function Can.hud(self)
+end
+
 function Can.draw(self)
     love.graphics.draw(
       self.image, 
@@ -52,6 +55,12 @@ function Can.draw(self)
 end
 
 function Can.coll(self, o)
+end
+
+function Can.keypressed(self, key)
+end
+
+function Can.keyreleased(self, key)
 end
 
 return Can

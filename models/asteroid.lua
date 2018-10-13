@@ -1,4 +1,5 @@
 local Can = require "models.goods"
+local Rope = require "models.rope"
 local Asteroid = {}
 
 math.randomseed(os.time())
@@ -56,6 +57,8 @@ function Asteroid.new(x, y, mass, rotation, asteroid_type, world)
 	  carbon=0
   }
   self.seeded = false
+  self.connected = false
+  self.rope = nil
 
   self.body = love.physics.newBody(self.world, self.x, self.y, "dynamic")
   self.shape = love.physics.newCircleShape(48)
@@ -63,7 +66,7 @@ function Asteroid.new(x, y, mass, rotation, asteroid_type, world)
   self.fixture:setUserData(self)
   self.image = AsteroidTypes[self.asteroid_type]["images"][1]
   self.body:setAngle(rotation)
-  self.body:setLinearVelocity(math.random(-20, 20), math.random(-20, 20))
+  -- self.body:setLinearVelocity(math.random(-20, 20), math.random(-20, 20))
   self.body:setAngularVelocity(math.random())
   return self
 end
@@ -93,6 +96,21 @@ function Asteroid.update(self, dt)
 
 	end
     end
+    if self.connected == true and self.rope == nil then
+      rope = Rope.new(self, entities.station[1])
+      table.insert(entities.ropes, rope)
+      self.rope = rope
+    end
+    if self.rope ~= nil then
+      for k, v in pairs(self.collected) do
+	entities.station[1][k] = entities.station[1][k] + v
+	self.collected[k] = 0
+      end
+    end	
+    can = self.send_package(self)
+    if can ~= nil then
+      table.insert(entities.cans, can)
+    end
   end
   self.setMass(self)
 end
@@ -116,6 +134,9 @@ function Asteroid.send_package(self)
   return nil
 end
 
+function Asteroid.hud(self)
+end
+
 function Asteroid.draw(self)
   love.graphics.draw(
     self.image, 
@@ -132,6 +153,20 @@ function Asteroid.coll(self, obj)
     self.seedit(self)
     obj.consumed = true
   end
+  if obj.name == 'Station' then
+    if self.seeded == false then
+      self.seedit(self)
+    end
+    if self.connected == false then
+      self.connected = true
+    end
+  end
+end
+
+function Asteroid.keypressed(self, key)
+end
+
+function Asteroid.keyreleased(self, key)
 end
 
 return Asteroid

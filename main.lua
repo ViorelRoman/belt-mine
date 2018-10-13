@@ -4,18 +4,28 @@ local Station = require "models.station"
 local Can = require "models.goods"
 local Seed = require "models.seed"
 local Gravity = require "libs.gravity"
+local Moan = require "libs.Moan"
+local Map = require "models.map"
+local Camera = require "libs.camera"
 
 str = ""
 
 math.randomseed(os.time())
 
 function love.load()
-  love.physics.setMeter(64)
+  love.physics.setMeter(1)
   world = love.physics.newWorld(0, 0, true)
   world:setCallbacks(beginContact, endContact, preSolve, postSolve)
-  gravity = Gravity.new(0.05, world)
-  player = Craft.new(200, 200, 10, world)
-  asteroids = {}
+  gravity = Gravity.new(0.02, world)
+  entities = {
+    player = {Craft.new(200, 200, 10, world)},
+    ropes = {},
+    asteroids = {},
+    cans = {},
+    seeds = {},
+    station = {Station.new(640, 480, world)},
+    maps = {Map.new()},
+  }
   for i = 1, 100 do
     type_chances = math.random()
     if type_chances < 0.5 then
@@ -26,81 +36,84 @@ function love.load()
       asteroid_type = 'M'
     end
     asteroid = Asteroid.new(math.random(-4000, 4000), math.random(-4000, 4000), 20, math.random(), asteroid_type, world)
-    table.insert(asteroids, asteroid)
+    table.insert(entities.asteroids, asteroid)
   end
-  cans = {}
-  seeds = {}
-  station = Station.new(640, 360, world)
   background = love.graphics.newImage("images/background.jpg")
   love.window.setMode(1280, 720)
+  Moan.font = love.graphics.newFont("assets/Pixel UniCode.ttf", 32)
+  Moan.speak(
+    "Приветствую, пилот!",
+    {
+      "Четвертая мировая война уничтожила человечество и его колонии на Луне и Марсе",
+      "Наша станция в поясе Койпера - единственное что осталось от нашего вида. Обезумевшие военные пытались уничтожить и ее, послав кинетический снаряд, разрушивший Плутон и Харон, вокруг которых станция вращалась...",
+      "И это дало нам шанс выжить. Осколки бывшей карликовой планеты и ее спутника образовали компактное облако астероидов, которые мы можем эксплоатировать, добывая воду, органику, металы и силикаты для нашей жизни и нашего оборудования",
+      "Ты, мой друг, пилот единственного шатла который есть у нас в распоряжении. От твоих умений зависит выживание всего человеческого рода, так что будь осторожен - если ты не сможешь вернуться на станцию, то потеряешь не только свою жизнь.",
+      "А теперь дерзай"
+    }
+  )
+  camera = Camera(1280 / 2, 720 / 2)
+end
+
+function check_and_destroy()
+  for i, group in pairs(entities) do
+    tbl = {}
+    for j, obj in pairs(group) do
+      if obj.consumed == true then
+        obj.body:destroy()
+        obj = nil
+      else
+	table.insert(tbl, obj)
+      end
+    end
+    entities[i] = tbl
+  end
 end
 
 function love.update(dt)
   world.update(world, dt)
-  player.update(player, dt)
-  station.update(station, dt)
+  for i, body in pairs(world:getBodies()) do
+    f = body:getFixtures()[1]
+    obj = f:getUserData()
+    obj.update(obj, dt)
+  end
   gravity.update(gravity, dt)
-  tbl = {}
-  for i, asteroid in pairs(asteroids) do
-    asteroid.update(asteroid, dt)
-    if asteroid.seeded == true then
-      can = asteroid.send_package(asteroid)
-      if can ~= nil then
-        table.insert(cans, can)
-      end
-    end
-  end
-  for i, can in pairs(cans) do
-    can.update(can, dt)
-    if can.consumed then
-      can.body:destroy()
-      can = nil
-    else
-      table.insert(tbl, can)
-    end
-  end
-  cans = tbl
-  tbl = {}
-  for i, seed in pairs(seeds) do
-    if seed.consumed then
-      seed.body:destroy()
-      seed = nil
-    else
-      table.insert(tbl, seed)
-    end
-  end
-  seeds = tbl
+  Moan.update(dt)
+  check_and_destroy()
 end
 
 function love.keyreleased(key)
-  if key == 's' and player.seeds > 0 then
-    xv, yv = player.body:getLinearVelocity()
-    seed = Seed.new(player.body:getX() + (14 * math.cos(player.body:getAngle())), player.body:getY() + (25 * math.sin(player.body:getAngle())), player.body:getAngle(), xv, yv, world)
-    table.insert(tbl, seed)
-    player.seeds = player.seeds - 1
+  for i, group in pairs(entities) do
+    for j, obj in pairs(group) do
+      obj.keyreleased(obj, key)
+    end
   end
+  Moan.keyreleased(key)
+end
+
+function love.keypressed(key)
+  for i, group in pairs(entities) do
+    for j, obj in pairs(group) do
+      obj.keypressed(obj, key)
+    end
+  end
+  Moan.keyreleased(key)
 end
 
 function love.draw()
   love.graphics.draw(background, 0, 0)
-  player.draw(player)
-  station.draw(station)
-  for i, can in pairs(cans) do
-    can.draw(can)
+  camera:attach()
+  for i, group in pairs(entities) do
+    for j, obj in pairs(group) do
+      obj.draw(obj)
+    end
   end
-  for i, seed in pairs(seeds) do
-    seed.draw(seed)
+  camera:detach()
+  for i, group in pairs(entities) do
+    for j, obj in pairs(group) do
+      obj.hud(obj)
+    end
   end
-  for i, asteroid in pairs(asteroids) do
-    asteroid.draw(asteroid)
-  end
-  fuel_str = string.format("%d", player.fuel)
-  love.graphics.print({{0, 1, 0}, "Fuel: ", {1, 0, 0}, fuel_str}, 0, 0)
-  sx, sy = player.body:getLinearVelocity()
-  speed_str = string.format("X: %f m/s, Y: %f m/s, Total: %d m/s", sx, sy, math.sqrt(math.pow(sx, 2) + math.pow(sy, 2)))
-  love.graphics.print({{0, 1, 0}, "Speed: ", {1, 0, 0}, speed_str}, 0, 20)
-  coordinate_str = string.format("%d %d", player.body:getX() - station.body:getX(), player.body:getY() - station.body:getY())
-  love.graphics.print({{0, 1, 0}, "Coordinates: ", {1, 0, 0}, coordinate_str}, 0, 40)
+  Moan.draw()
 end
 
 function beginContact(a, b, coll)

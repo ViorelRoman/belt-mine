@@ -22,6 +22,11 @@ function Seed.new(x, y, angle, xv, yv, world)
   return self
 end
 
+function Seed.update(self, dt)
+end
+
+function Seed.hud(self)
+end
 
 function Seed.draw(self)
   love.graphics.draw(
@@ -35,6 +40,12 @@ function Seed.draw(self)
 end
 
 function Seed.coll(self, obj)
+end
+
+function Seed.keypressed(self, key)
+end
+
+function Seed.keyreleased(self, key)
 end
 
 return Seed
